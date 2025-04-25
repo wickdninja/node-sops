@@ -12,7 +12,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Military-Grade Encryption',
-    Svg: require('@site/static/img/undraw_security.svg').default,
+    Svg: require('@site/static/img/feature-encryption.svg').default,
     description: (
       <>
         Protect your sensitive data with AES-256-CBC encryption,
@@ -21,23 +21,42 @@ const FeatureList: FeatureItem[] = [
     ),
   },
   {
-    title: 'Developer-Friendly',
-    Svg: require('@site/static/img/undraw_programming.svg').default,
+    title: 'Command-Line Interface',
+    Svg: require('@site/static/img/feature-cli.svg').default,
     description: (
       <>
-        Simple CLI and clean programmatic API make it easy to integrate
-        secure secrets management into your workflow. Full TypeScript
-        support included.
+        Simple CLI interface makes it easy to encrypt and decrypt 
+        configuration files directly from your terminal.
       </>
     ),
   },
   {
-    title: 'Format Flexible',
-    Svg: require('@site/static/img/undraw_file_sync.svg').default,
+    title: 'Programmatic API',
+    Svg: require('@site/static/img/feature-api.svg').default,
+    description: (
+      <>
+        Clean JavaScript/TypeScript API for seamless integration with 
+        your applications. Full TypeScript definitions included.
+      </>
+    ),
+  },
+  {
+    title: 'File Format Flexibility',
+    Svg: require('@site/static/img/feature-format.svg').default,
     description: (
       <>
         Works seamlessly with YAML and JSON files. Store your configuration
-        in the format that works best for your team and project needs.
+        in the format that works best for your team and project.
+      </>
+    ),
+  },
+  {
+    title: 'Key Management',
+    Svg: require('@site/static/img/feature-keys.svg').default,
+    description: (
+      <>
+        Flexible key management options support your specific security 
+        requirements with secure key rotation capabilities.
       </>
     ),
   },
@@ -45,7 +64,7 @@ const FeatureList: FeatureItem[] = [
 
 function Feature({title, Svg, description}: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
+    <div className={clsx('col col--4 margin-bottom--lg')}>
       <div className="text--center">
         <Svg className={styles.featureSvg} role="img" />
       </div>

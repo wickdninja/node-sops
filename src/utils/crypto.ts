@@ -5,7 +5,7 @@ import * as path from 'path';
 /**
  * Encryption algorithm used for secrets
  */
-export const ALGORITHM = 'aes-256-cbc';
+export const ALGORITHM = 'aes-256-gcm';
 
 /**
  * Derives a 32-byte encryption key from the provided raw key
@@ -13,9 +13,9 @@ export const ALGORITHM = 'aes-256-cbc';
  * @returns A 32-byte Buffer for use with AES-256
  */
 export function deriveKey(rawKey: string): Buffer {
-  return Buffer.from(
-    crypto.createHash('sha256').update(rawKey).digest('base64').substr(0, 32)
-  );
+  // Use a more secure approach - directly get the digest as Buffer and use it
+  // SHA-256 produces exactly 32 bytes which is what we need for AES-256
+  return crypto.createHash('sha256').update(rawKey).digest();
 }
 
 /**
@@ -27,43 +27,48 @@ export function generateKey(): string {
 }
 
 /**
- * Encrypts content with the provided key using AES-256-CBC
+ * Encrypts content with the provided key using AES-256-GCM
  * @param content The string content to encrypt
  * @param rawKey The encryption key
- * @returns Object containing base64-encoded IV and encrypted content
+ * @returns Object containing base64-encoded IV, encrypted content, and authentication tag
  */
-export function encrypt(content: string, rawKey: string): { iv: string; content: string } {
-  // Create an initialization vector
-  const iv = crypto.randomBytes(16);
+export function encrypt(content: string, rawKey: string): { iv: string; content: string; tag: string } {
+  // Create an initialization vector (12 bytes is recommended for GCM)
+  const iv = crypto.randomBytes(12);
   
   // Derive the encryption key from the raw key
   const key = deriveKey(rawKey);
   
-  // Create a cipher using the key and iv
+  // Create a cipher using the key and iv with GCM mode
   const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
   
   // Encrypt the content
   let encrypted = cipher.update(content, 'utf8', 'base64');
   encrypted += cipher.final('base64');
   
+  // Get the authentication tag
+  const authTag = cipher.getAuthTag();
+  
   return {
     iv: iv.toString('base64'),
-    content: encrypted
+    content: encrypted,
+    tag: authTag.toString('base64')
   };
 }
 
 /**
- * Decrypts content with the provided key using AES-256-CBC
- * @param encryptedData Object containing the IV and encrypted content (both base64-encoded)
+ * Decrypts content with the provided key using AES-256-GCM
+ * @param encryptedData Object containing the IV, encrypted content, and auth tag (all base64-encoded)
  * @param rawKey The encryption key
  * @returns The decrypted content as a string
- * @throws Error if decryption fails (e.g., due to wrong key)
+ * @throws Error if decryption fails (e.g., due to wrong key or data tampering)
  */
-export function decrypt(encryptedData: { iv: string; content: string }, rawKey: string): string {
+export function decrypt(encryptedData: { iv: string; content: string; tag: string }, rawKey: string): string {
   try {
-    // Extract the iv and content
+    // Extract the iv, content, and authentication tag
     const iv = Buffer.from(encryptedData.iv, 'base64');
     const content = encryptedData.content;
+    const authTag = Buffer.from(encryptedData.tag, 'base64');
     
     // Derive the encryption key from the raw key
     const key = deriveKey(rawKey);
@@ -71,13 +76,16 @@ export function decrypt(encryptedData: { iv: string; content: string }, rawKey: 
     // Create a decipher using the key and iv
     const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
     
+    // Set the authentication tag for verification
+    decipher.setAuthTag(authTag);
+    
     // Decrypt the content
     let decrypted = decipher.update(content, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
     
     return decrypted;
   } catch (error) {
-    throw new Error(`Decryption failed: ${(error as Error).message}. This could be due to an incorrect key or corrupted data.`);
+    throw new Error(`Decryption failed: ${(error as Error).message}. This could be due to an incorrect key, corrupted data, or data tampering.`);
   }
 }
 
@@ -104,6 +112,26 @@ export function saveKey(key: string, keyPath: string): void {
 }
 
 /**
+ * Checks if a file has secure permissions (0o600 or more restrictive)
+ * @param filePath Path to the file to check
+ * @returns true if permissions are secure, false otherwise
+ */
+export function hasSecurePermissions(filePath: string): boolean {
+  try {
+    const stats = fs.statSync(filePath);
+    // Check if file has permissions 0o600 (user read/write only) or more restrictive
+    const mode = stats.mode & 0o777; // Get the permission bits
+    
+    // File should not be readable or writable by group or others
+    const restrictiveEnough = (mode & 0o077) === 0;
+    
+    return restrictiveEnough;
+  } catch (error) {
+    return false;
+  }
+}
+
+/**
  * Loads a key from a file
  * @param keyPath The path to the key file
  * @returns The encryption key as a string
@@ -114,6 +142,12 @@ export function loadKey(keyPath: string): string {
     if (!fs.existsSync(keyPath)) {
       throw new Error(`Key file does not exist: ${keyPath}`);
     }
+    
+    // Check file permissions
+    if (!hasSecurePermissions(keyPath)) {
+      console.warn(`WARNING: Key file ${keyPath} has insecure permissions. Consider running: chmod 600 ${keyPath}`);
+    }
+    
     return fs.readFileSync(keyPath, 'utf8').trim();
   } catch (error) {
     throw new Error(`Failed to load key from ${keyPath}: ${(error as Error).message}`);

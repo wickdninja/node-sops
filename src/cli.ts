@@ -4,14 +4,15 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as crypto from 'crypto';
 import { Sops } from './index';
 
 const program = new Command();
 
 program
   .name('node-sops')
-  .description('Simple secrets management for Node.js projects')
-  .version('0.1.0');
+  .description('Simple and secure secrets management for Node.js projects')
+  .version('0.2.0');
 
 program
   .command('init')
@@ -165,18 +166,36 @@ program
         // Key already exists
       }
       
-      // Create a temporary directory for rotation
+      // Create a temporary directory for rotation with random name
       const tempDir = path.dirname(outputPath);
-      const tempFilePath = path.join(tempDir, 'temp_rotation.json');
+      const randomSuffix = crypto.randomBytes(8).toString('hex');
+      const tempFilePath = path.join(tempDir, `temp_rotation_${randomSuffix}.json`);
       
-      // Write the decrypted data to a temporary file
-      fs.writeFileSync(tempFilePath, JSON.stringify(data));
-      
-      // Encrypt with the new key
-      newSops.encrypt(tempFilePath, outputPath);
-      
-      // Clean up the temporary file
-      fs.unlinkSync(tempFilePath);
+      try {
+        // Write the decrypted data to a temporary file
+        fs.writeFileSync(tempFilePath, JSON.stringify(data));
+        
+        // Encrypt with the new key
+        newSops.encrypt(tempFilePath, outputPath);
+      } finally {
+        // Securely clean up the temporary file
+        if (fs.existsSync(tempFilePath)) {
+          // Overwrite with zeros before deleting
+          const buffer = Buffer.alloc(1024, 0);
+          const fileStats = fs.statSync(tempFilePath);
+          const fd = fs.openSync(tempFilePath, 'w');
+          
+          try {
+            // Write zeros over the file
+            for (let i = 0; i < Math.ceil(fileStats.size / 1024); i++) {
+              fs.writeSync(fd, buffer, 0, Math.min(buffer.length, fileStats.size - i * 1024));
+            }
+          } finally {
+            fs.closeSync(fd);
+            fs.unlinkSync(tempFilePath);
+          }
+        }
+      }
       
       console.log(chalk.green('✓ Key rotated successfully'));
       console.log(chalk.blue('Re-encrypted file saved to:'), outputPath);

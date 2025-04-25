@@ -22,6 +22,7 @@ export interface SopsOptions {
  * Encrypted data format
  * @property iv - Base64-encoded initialization vector used for encryption
  * @property content - Base64-encoded encrypted content
+ * @property tag - Base64-encoded authentication tag (for AES-GCM)
  * @property metadata - Additional metadata about the encrypted content
  */
 export interface EncryptedData {
@@ -29,6 +30,8 @@ export interface EncryptedData {
   iv: string;
   /** Base64-encoded encrypted content */
   content: string;
+  /** Base64-encoded authentication tag (for AES-GCM) */
+  tag: string;
   /** Additional metadata about the encrypted content */
   metadata?: {
     /** Timestamp when the data was encrypted */

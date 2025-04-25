@@ -23,6 +23,15 @@ module.exports = {
     'semi': ['error', 'always'],
     'quotes': ['error', 'single', { avoidEscape: true }],
   },
+  overrides: [
+    {
+      // Allow console in CLI file
+      files: ['src/cli.ts'],
+      rules: {
+        'no-console': 'off',
+      }
+    }
+  ],
   ignorePatterns: [
     'node_modules/',
     'lib/',

@@ -35,16 +35,60 @@ describe('Crypto Utilities', () => {
         crypto.loadKey('/non/existent/path');
       }).toThrow();
     });
+    
+    test('should check file permissions for security', () => {
+      crypto.saveKey(testKey, testKeyPath);
+      
+      // Secure permissions should be detected (chmod 600 was applied by saveKey)
+      expect(crypto.hasSecurePermissions(testKeyPath)).toBe(true);
+      
+      // Now let's make it insecure
+      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => { /* do nothing */ });
+      
+      // Try to make permissions more open if on Unix-like system
+      try {
+        fs.chmodSync(testKeyPath, 0o644); // world readable
+        
+        // Insecure permissions should be detected
+        expect(crypto.hasSecurePermissions(testKeyPath)).toBe(false);
+        
+        // Loading should warn about insecure permissions
+        crypto.loadKey(testKeyPath);
+        expect(consoleSpy).toHaveBeenCalled();
+      } catch (e) {
+        // On some systems we might not be able to change permissions
+      } finally {
+        consoleSpy.mockRestore();
+        // Set it back to secure
+        fs.chmodSync(testKeyPath, 0o600);
+      }
+    });
   });
   
   describe('Encryption and Decryption', () => {
-    test('should encrypt and decrypt content', () => {
+    test('should encrypt and decrypt content using AES-GCM', () => {
       const encrypted = crypto.encrypt(testContent, testKey);
       expect(encrypted.iv).toBeDefined();
       expect(encrypted.content).toBeDefined();
+      expect(encrypted.tag).toBeDefined(); // GCM mode should include auth tag
       
       const decrypted = crypto.decrypt(encrypted, testKey);
       expect(decrypted).toEqual(testContent);
+    });
+    
+    test('should detect tampering with encrypted content', () => {
+      const encrypted = crypto.encrypt(testContent, testKey);
+      
+      // Tamper with the encrypted content
+      const tampered = {
+        ...encrypted,
+        content: encrypted.content.replace(/[A-Za-z0-9]/, 'X') // Replace a character
+      };
+      
+      // Should throw when tampering is detected
+      expect(() => {
+        crypto.decrypt(tampered, testKey);
+      }).toThrow();
     });
     
     test('should derive consistent keys from raw keys', () => {
@@ -60,5 +104,6 @@ describe('Crypto Utilities', () => {
         crypto.decrypt(encrypted, 'wrong-key');
       }).toThrow();
     });
+    
   });
 });

@@ -8,7 +8,7 @@ A robust, easy-to-use secrets management solution for Node.js projects, inspired
 
 ## 🌟 Features
 
-- **Military-Grade Encryption**: AES-256-CBC encryption for your sensitive data
+- **Military-Grade Encryption**: AES-256-GCM authenticated encryption for your sensitive data
 - **Multiple Format Support**: Works seamlessly with YAML and JSON files
 - **Easy Key Management**: Simple key generation and secure sharing capabilities
 - **Developer-Friendly API**: Clean programmatic interface for integration
@@ -174,7 +174,17 @@ data:
 }
 ```
 
-## 🔒 Security Best Practices
+## 🔒 Security Features and Best Practices
+
+### Security Features
+
+- **Authenticated Encryption**: Uses AES-256-GCM to protect against tampering and ensure data integrity
+- **Secure Key Storage**: Keys are stored with 0o600 permissions (user read/write only)
+- **Key Permission Verification**: Warns when key files have insecure permissions
+- **Secure Temporary Files**: Uses random names and secure deletion for sensitive temporary files 
+- **Version-Aware Encryption**: Format includes version markers for future algorithm upgrades
+
+### Best Practices
 
 1. **Never commit the key file (.sops-key) to git**
 2. Add `.sops-key` to your `.gitignore` file
@@ -183,6 +193,7 @@ data:
 5. Consider using environment variables for production deployments
 6. Rotate keys periodically for enhanced security
 7. Use role-based access control for key management in team settings
+8. Check the SECURITY.md file for detailed security information
 
 ## 🧩 Advanced Usage
 
@@ -224,20 +235,6 @@ const encrypted = sops.encryptContent(plainContent);
 const decrypted = sops.decryptContent(encrypted);
 ```
 
-## 🔄 Migration Guide
-
-### From v0.x to v1.0
-
-If you're upgrading from an earlier version, please note these changes:
-
-1. Key format has changed for enhanced security
-2. API method signatures remain backward compatible
-3. New features include content encryption and key rotation
-
-Migration steps:
-1. Install the latest version
-2. Use the `rotate` command to update your encrypted files
-3. Update any scripts that directly access internal properties
 
 ## 👥 Contributing
 

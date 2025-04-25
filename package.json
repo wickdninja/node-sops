@@ -1,6 +1,6 @@
 {
   "name": "node-sops",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Simple file-based secrets management for Node.js projects",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
