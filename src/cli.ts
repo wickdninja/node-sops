@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import * as chalk from 'chalk';
+import chalk from 'chalk';
 import * as path from 'path';
 import * as fs from 'fs';
 import { Sops } from './index';
@@ -122,6 +122,67 @@ program
         console.log(chalk.yellow(`No value found for key: ${options.key}`));
       } else {
         console.log(value);
+      }
+    } catch (error) {
+      console.error(chalk.red('Error:'), (error as Error).message);
+      process.exit(1);
+    }
+  });
+
+program
+  .command('rotate')
+  .description('Rotate encryption key for a file (re-encrypt with a new key)')
+  .requiredOption('-i, --input <path>', 'Input file path (encrypted)')
+  .option('-o, --output <path>', 'Output file path (encrypted)')
+  .option('--old-key-file <path>', 'Path to the old encryption key file')
+  .option('--new-key-file <path>', 'Path to the new encryption key file')
+  .action((options) => {
+    try {
+      const inputPath = path.resolve(options.input);
+      // Default output path is the same as input
+      const outputPath = options.output 
+        ? path.resolve(options.output)
+        : inputPath;
+      
+      // Create a SOPS instance with the old key to decrypt
+      const oldSops = new Sops({ keyPath: options.oldKeyFile });
+      
+      // Decrypt and get the data
+      const data = oldSops.view(inputPath);
+      
+      // Create a SOPS instance with the new key to encrypt
+      // If no new key file is specified, it will create and use a new one
+      const newSops = options.newKeyFile
+        ? new Sops({ keyPath: options.newKeyFile })
+        : new Sops();
+      
+      // Make sure we have a new key
+      try {
+        if (!options.newKeyFile) {
+          newSops.initialize();
+        }
+      } catch (error) {
+        // Key already exists
+      }
+      
+      // Create a temporary directory for rotation
+      const tempDir = path.dirname(outputPath);
+      const tempFilePath = path.join(tempDir, 'temp_rotation.json');
+      
+      // Write the decrypted data to a temporary file
+      fs.writeFileSync(tempFilePath, JSON.stringify(data));
+      
+      // Encrypt with the new key
+      newSops.encrypt(tempFilePath, outputPath);
+      
+      // Clean up the temporary file
+      fs.unlinkSync(tempFilePath);
+      
+      console.log(chalk.green('✓ Key rotated successfully'));
+      console.log(chalk.blue('Re-encrypted file saved to:'), outputPath);
+      
+      if (!options.newKeyFile) {
+        console.log(chalk.yellow('A new key has been generated. Be sure to update your key management accordingly.'));
       }
     } catch (error) {
       console.error(chalk.red('Error:'), (error as Error).message);

@@ -19,6 +19,7 @@ const config: Config = {
   // If you aren't using GitHub pages, you don't need these.
   organizationName: 'wickdninja', // Usually your GitHub org/user name.
   projectName: 'node-sops', // Usually your repo name.
+  deploymentBranch: 'gh-pages',
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -41,7 +42,7 @@ const config: Config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/wickdninja/node-sops/tree/main/docs/',
+            'https://github.com/wickdninja/node-sops/edit/main/docs/',
         },
         blog: false,
         theme: {
@@ -65,11 +66,11 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'tutorialSidebar',
           position: 'left',
-          label: 'Docs',
+          label: 'Documentation',
         },
         {
           type: 'dropdown',
-          label: 'API',
+          label: 'API Reference',
           position: 'left',
           items: [
             {
@@ -87,8 +88,18 @@ const config: Config = {
           ],
         },
         {
+          to: '/security-best-practices',
+          label: 'Security',
+          position: 'left',
+        },
+        {
           href: 'https://github.com/wickdninja/node-sops',
           label: 'GitHub',
+          position: 'right',
+        },
+        {
+          href: 'https://www.npmjs.com/package/node-sops',
+          label: 'NPM',
           position: 'right',
         },
       ],
@@ -97,8 +108,12 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'Documentation',
           items: [
+            {
+              label: 'Overview',
+              to: '/',
+            },
             {
               label: 'Getting Started',
               to: '/getting-started',
@@ -111,27 +126,31 @@ const config: Config = {
               label: 'Programmatic Usage',
               to: '/programmatic-usage',
             },
+            {
+              label: 'Security Best Practices',
+              to: '/security-best-practices',
+            },
           ],
         },
         {
-          title: 'Community',
+          title: 'API Reference',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/node-sops',
+              label: 'CLI Reference',
+              to: '/api/cli',
             },
             {
-              label: 'GitHub Discussions',
-              href: 'https://github.com/wickdninja/node-sops/discussions',
+              label: 'JavaScript API',
+              to: '/api/js',
             },
             {
-              label: 'Twitter',
-              href: 'https://twitter.com/wickdninja',
+              label: 'TypeScript API',
+              to: '/api/ts',
             },
           ],
         },
         {
-          title: 'More',
+          title: 'Community & Support',
           items: [
             {
               label: 'GitHub',
@@ -142,13 +161,13 @@ const config: Config = {
               href: 'https://github.com/wickdninja/node-sops/issues',
             },
             {
-              label: 'Releases',
-              href: 'https://github.com/wickdninja/node-sops/releases',
+              label: 'NPM Package',
+              href: 'https://www.npmjs.com/package/node-sops',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Node SOPS. Built with Docusaurus.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Node SOPS. Licensed under MIT.`,
     },
     prism: {
       theme: prismThemes.github,

@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { Sops, EncryptedData } from '../src/index';
-import * as crypto from '../src/utils/crypto';
+// crypto module is imported only for TypeScript types
+// import * as crypto from '../src/utils/crypto';
 
 describe('Sops Class', () => {
   const testDir = path.join(__dirname, 'temp');
@@ -38,6 +39,11 @@ describe('Sops Class', () => {
   });
   
   beforeEach(() => {
+    // Create test directory if it doesn't exist
+    if (!fs.existsSync(testDir)) {
+      fs.mkdirSync(testDir, { recursive: true });
+    }
+
     // Create test secrets file
     fs.writeFileSync(testPlainPath, `
 data:

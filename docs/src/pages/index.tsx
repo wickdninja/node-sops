@@ -43,11 +43,10 @@ export default function Home(): ReactNode {
           <div className="row">
             <div className="col col--8 col--offset-2">
               <div className="text--center margin-bottom--lg">
-                <Heading as="h2">Why Node SOPS?</Heading>
+                <Heading as="h2">Simple Secrets Management for Node.js</Heading>
                 <p>
-                  Managing sensitive data securely is crucial for every project. Node SOPS brings the power 
-                  and simplicity of Mozilla SOPS to the Node.js ecosystem, with a clean API and modern tooling 
-                  designed specifically for JavaScript and TypeScript developers.
+                  Node SOPS brings the power and simplicity of Mozilla SOPS to the Node.js ecosystem, with a clean API 
+                  and modern tooling designed specifically for JavaScript and TypeScript developers.
                 </p>
               </div>
               
@@ -66,6 +65,43 @@ export default function Home(): ReactNode {
                     to="/getting-started">
                     See the full installation guide
                   </Link>
+                </div>
+              </div>
+
+              <div className="row margin-top--xl">
+                <div className="col col--6">
+                  <div className="card" style={{height: '100%'}}>
+                    <div className="card__header">
+                      <Heading as="h3">CLI Usage</Heading>
+                    </div>
+                    <div className="card__body">
+                      <p>Use Node SOPS from the command line to quickly encrypt and decrypt your configuration files.</p>
+                    </div>
+                    <div className="card__footer">
+                      <Link
+                        className="button button--outline button--primary button--block"
+                        to="/cli-usage">
+                        Read More
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div className="col col--6">
+                  <div className="card" style={{height: '100%'}}>
+                    <div className="card__header">
+                      <Heading as="h3">Programmatic Usage</Heading>
+                    </div>
+                    <div className="card__body">
+                      <p>Integrate Node SOPS directly into your Node.js applications with the clean and intuitive API.</p>
+                    </div>
+                    <div className="card__footer">
+                      <Link
+                        className="button button--outline button--primary button--block"
+                        to="/programmatic-usage">
+                        Read More
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

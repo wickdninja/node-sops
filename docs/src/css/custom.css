@@ -163,8 +163,20 @@ th {
   background-color: var(--ifm-background-surface-color);
 }
 
+.footer__title {
+  color: var(--ifm-color-emphasis-900);
+}
+
+.footer__link-item {
+  color: var(--ifm-color-emphasis-800);
+}
+
 .footer__link-item:hover {
   color: var(--ifm-color-primary);
+}
+
+.footer__copyright {
+  color: var(--ifm-color-emphasis-700);
 }
 
 /* Admonitions (callouts) */

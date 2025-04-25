@@ -126,7 +126,7 @@ export function loadKey(keyPath: string): string {
  * @param maxDepth The maximum number of parent directories to search (default: 5)
  * @returns The full path to the key file if found, or null if not found
  */
-export function findKeyFile(fileName: string = '.sops-key', maxDepth: number = 5): string | null {
+export function findKeyFile(fileName = '.sops-key', maxDepth = 5): string | null {
   let currentDir = process.cwd();
   let depth = 0;
   
