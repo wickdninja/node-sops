@@ -5,27 +5,42 @@ import * as file from './utils/file';
 
 /**
  * Options for the SOPS operations
+ * @property keyPath - Path to the encryption key file
+ * @property inputPath - Default input file path for operations
+ * @property outputPath - Default output file path for operations
  */
 export interface SopsOptions {
+  /** Path to the encryption key file. If not provided, will search for a default key file */
   keyPath?: string;
+  /** Default input file path for operations */
   inputPath?: string;
+  /** Default output file path for operations */
   outputPath?: string;
 }
 
 /**
  * Encrypted data format
+ * @property iv - Base64-encoded initialization vector used for encryption
+ * @property content - Base64-encoded encrypted content
+ * @property metadata - Additional metadata about the encrypted content
  */
 export interface EncryptedData {
+  /** Base64-encoded initialization vector used for encryption */
   iv: string;
+  /** Base64-encoded encrypted content */
   content: string;
+  /** Additional metadata about the encrypted content */
   metadata?: {
+    /** Timestamp when the data was encrypted */
     encryptedAt: string;
+    /** Version of the encryption format */
     version: string;
   };
 }
 
 /**
  * Main SOPS class for managing secrets
+ * Provides methods to encrypt, decrypt, view, and retrieve secrets
  */
 export class Sops {
   private keyPath: string;
@@ -33,9 +48,16 @@ export class Sops {
   
   /**
    * Creates a new SOPS instance
+   * @param options Configuration options for SOPS
+   * @param options.keyPath Optional custom path to the encryption key file
+   * @param options.inputPath Optional default input file path
+   * @param options.outputPath Optional default output file path
    */
   constructor(options: SopsOptions = {}) {
-    // Find or use provided key path
+    // Find or use provided key path (in order of precedence):
+    // 1. Explicitly provided path
+    // 2. Existing key file in current or parent directories
+    // 3. Default path in current directory
     this.keyPath = options.keyPath || crypto.findKeyFile() || path.join(process.cwd(), '.sops-key');
   }
   
