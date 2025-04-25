@@ -1,0 +1,48 @@
+{
+  "name": "node-sops",
+  "version": "0.1.0",
+  "description": "Simple file-based secrets management for Node.js projects",
+  "main": "lib/index.js",
+  "bin": {
+    "node-sops": "bin/node-sops.js"
+  },
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "lint": "eslint . --ext .ts",
+    "prepare": "npm run build"
+  },
+  "keywords": [
+    "secrets",
+    "encryption",
+    "sops",
+    "security",
+    "configuration"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "files": [
+    "lib/**/*",
+    "bin/**/*"
+  ],
+  "devDependencies": {
+    "@types/jest": "^29.5.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^18.15.0",
+    "jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "js-yaml": "^4.1.0"
+  }
+}
